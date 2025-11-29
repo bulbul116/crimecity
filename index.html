@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Crimecity – Road Loop Test</title>
+  <title>Crimecity – Map Test</title>
   <style>
     html, body {
       margin: 0;
@@ -22,7 +22,7 @@
 
     canvas {
       border: 3px solid #444;
-      background: #284028; /* grass */
+      background: #000;
       image-rendering: pixelated;
       display: block;
       margin: 0 auto;
@@ -50,6 +50,14 @@
 
     const WIDTH = canvas.width;
     const HEIGHT = canvas.height;
+
+    // Load your city map image
+    const mapImage = new Image();
+    mapImage.src = "citymap.png"; // make sure this file exists in the repo root
+    let mapLoaded = false;
+    mapImage.onload = () => {
+      mapLoaded = true;
+    };
 
     const player = {
       x: WIDTH / 2,
@@ -94,51 +102,15 @@
       if (player.y > HEIGHT)   player.y = 0;
     }
 
-    function drawRoads() {
-      // background (grass)
-      ctx.fillStyle = "#284028";
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-      // road color
-      ctx.fillStyle = "#3f3f3f";
-
-      // main horizontal road (middle)
-      const roadWidth = 90;
-      ctx.fillRect(0, HEIGHT / 2 - roadWidth / 2, WIDTH, roadWidth);
-
-      // main vertical road (middle)
-      ctx.fillRect(WIDTH / 2 - roadWidth / 2, 0, roadWidth, HEIGHT);
-
-      // outer "ring" roads (top, bottom, left, right)
-      const ringWidth = 60;
-
-      // top
-      ctx.fillRect(0, 40, WIDTH, ringWidth);
-      // bottom
-      ctx.fillRect(0, HEIGHT - 40 - ringWidth, WIDTH, ringWidth);
-      // left
-      ctx.fillRect(40, 0, ringWidth, HEIGHT);
-      // right
-      ctx.fillRect(WIDTH - 40 - ringWidth, 0, ringWidth, HEIGHT);
-
-      // simple lane markings on middle cross
-      ctx.strokeStyle = "#d8d8d8";
-      ctx.setLineDash([10, 10]);
-      ctx.lineWidth = 2;
-
-      // horizontal
-      ctx.beginPath();
-      ctx.moveTo(0, HEIGHT / 2);
-      ctx.lineTo(WIDTH, HEIGHT / 2);
-      ctx.stroke();
-
-      // vertical
-      ctx.beginPath();
-      ctx.moveTo(WIDTH / 2, 0);
-      ctx.lineTo(WIDTH / 2, HEIGHT);
-      ctx.stroke();
-
-      ctx.setLineDash([]);
+    function drawBackground() {
+      if (mapLoaded) {
+        // Draw city map scaled to canvas
+        ctx.drawImage(mapImage, 0, 0, WIDTH, HEIGHT);
+      } else {
+        // Fallback background while image loads
+        ctx.fillStyle = "#284028";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      }
     }
 
     function drawPlayer() {
@@ -151,7 +123,7 @@
         player.size
       );
 
-      // small front window
+      // front window
       ctx.fillStyle = "#e0f7fa";
       ctx.fillRect(
         player.x - player.size / 2 + 3,
@@ -163,7 +135,7 @@
 
     function loop() {
       update();
-      drawRoads();
+      drawBackground();
       drawPlayer();
       requestAnimationFrame(loop);
     }
